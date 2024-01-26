@@ -2,6 +2,7 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from "cors";
+import { roomHandler } from "./room";
 const app = express();
 app.use(cors());
 
@@ -19,29 +20,7 @@ io.on("connection", (socket) => {
   // When connect
   console.log("a user connected.");
 
-  // socket.on(
-  //   "sendMessage",
-  //   ({ message, key }: { message: any; key: string }) => {
-  //     // console.log({ message, key });
-
-  //     io.emit("getMessage", { message, key });
-  //   }
-  // );
-
-  socket.emit("me", socket.id);
-
-  socket.on("callUser", (data) => {
-    io.to(data.userToCall).emit("callUser", {
-      signal: data.signalData,
-      from: data.from,
-      name: data.name,
-    });
-  });
-
-  socket.on("answerCall", (data) => {
-    io.to(data.to).emit("callAccepted", data.signal);
-  });
-
+  roomHandler(socket);
   socket.on("disconnect", () => {
     socket.broadcast.emit("callEnded");
 
